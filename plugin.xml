@@ -38,6 +38,13 @@
                     android:resource="@xml/provider_paths"/>
             </provider>
         </config-file>
+        <config-file parent="/*" target="AndroidManifest.xml">
+            <queries>
+                <intent>
+                    <action android:name="android.intent.action.INSERT" />
+                </intent>
+            </queries>
+        </config-file>
         <source-file src="src/android/IntentShim.java" target-dir="src/com/darryncampbell/plugin/intent" />
         <source-file src="src/android/CordovaPluginIntentFileProvider.java" target-dir="src/com/darryncampbell/plugin/intent" />
 		<resource-file src="src/android/res/xml/provider_paths.xml" target="res/xml/provider_paths.xml"/>
