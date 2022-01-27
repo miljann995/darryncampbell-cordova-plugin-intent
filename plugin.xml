@@ -40,6 +40,7 @@
         </config-file>
         <config-file parent="/*" target="AndroidManifest.xml">
             <queries>
+                <package android:name="com.google.android.contacts" />
                 <intent>
                     <action android:name="android.intent.action.INSERT" />
                 </intent>
