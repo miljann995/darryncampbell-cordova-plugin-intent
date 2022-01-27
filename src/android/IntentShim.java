@@ -6,21 +6,26 @@ import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
@@ -34,6 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import java.io.Serializable;
@@ -486,6 +492,10 @@ public class IntentShim extends CordovaPlugin {
         Map<String, Object> extrasMap = new HashMap<String, Object>();
         JSONObject extrasObject = null;
         String extrasKey = "";
+        Bundle bundle = null;
+        String bundleKey = "";
+        ArrayList<ContentValues> arrayList = null;
+        String arrayListKey = "";
         if (extras != null) {
             JSONArray extraNames = extras.names();
             for (int i = 0; i < extraNames.length(); i++) {
@@ -495,6 +505,12 @@ public class IntentShim extends CordovaPlugin {
                     //  The extra is a bundle
                     extrasKey = key;
                     extrasObject = (JSONObject) extras.get(key);
+                    bundleKey = key;
+                    bundle = toBundle((JSONObject) extras.get(key));
+                } else if (extrasObj instanceof JSONArray) {
+                    //  The extra is a array list
+                    arrayListKey = key;
+                    arrayList = toArrayList((JSONArray) extras.get(key));
                 } else {
                     extrasMap.put(key, extras.get(key));
                 }
@@ -551,6 +567,9 @@ public class IntentShim extends CordovaPlugin {
 
         if (extrasObject != null)
             addSerializable(i, extrasKey, extrasObject);
+
+        if (arrayList != null)
+            i.putParcelableArrayListExtra(arrayListKey, arrayList);
 
         for (String key : extrasMap.keySet()) {
             Object value = extrasMap.get(key);
@@ -895,5 +914,58 @@ public class IntentShim extends CordovaPlugin {
         }
 
         return returnBundle;
+    }
+
+    private ArrayList<ContentValues> toArrayList(final JSONArray jsonArray) {
+        ArrayList<ContentValues> returnArrayList = new ArrayList<ContentValues>();
+        if (jsonArray == null) {
+            return null;
+        }
+        try {
+            int length = jsonArray.length();
+            for (int k = 0; k < length; k++) {
+                returnArrayList.add(toContentValues(jsonArray.getJSONObject(k)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return returnArrayList;
+    }
+
+    private ContentValues toContentValues(final JSONObject obj) {
+        ContentValues returnContentValues = new ContentValues();
+        if (obj == null) {
+            return null;
+        }
+        try {
+            Iterator<?> keys = obj.keys();
+            while(keys.hasNext())
+            {
+                String key = (String)keys.next();
+
+                if(key.equalsIgnoreCase("data15")) {
+                    returnContentValues.put(key, Base64.decode(obj.getString(key), Base64.DEFAULT));
+                } else {
+                    if (obj.get(key) instanceof String)
+                        returnContentValues.put(key, obj.getString(key));
+                    else if (obj.get(key) instanceof Boolean)
+                        returnContentValues.put(key, obj.getBoolean(key));
+                    else if (obj.get(key) instanceof Integer)
+                        returnContentValues.put(key, obj.getInt(key));
+                    else if (obj.get(key) instanceof Long)
+                        returnContentValues.put(key, obj.getLong(key));
+                    else if (obj.get(key) instanceof Double)
+                        returnContentValues.put(key, obj.getDouble(key));
+                }
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return returnContentValues;
     }
 }

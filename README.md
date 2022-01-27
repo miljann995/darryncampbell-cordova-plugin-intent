@@ -8,10 +8,6 @@
 
 Note: this is the current underlying implementation for https://www.npmjs.com/package/@ionic-native/web-intent and https://ionicframework.com/docs/native/web-intent/
 
-# Android X support
-- For Android X Support please use version >= [2.x.x](https://www.npmjs.com/package/com-darryncampbell-cordova-plugin-intent/v/2.0.0) 
-- For Android Support Library please use version [1.3.x](https://www.npmjs.com/package/com-darryncampbell-cordova-plugin-intent/v/1.3.0)
-
 # Interaction with Camera Plugin
 If you are installing this plugin along with cordova-plugin-camera you **MUST install cordova-plugin-camera first.**
 
@@ -252,37 +248,6 @@ Pick an Android contact
         console.log("StartActivityForResult failure");
     });
 
-## intentShim.sendResult
-
-Assuming this application was started with `intentShim.startActivityForResult`, send a result back
-
-    window.plugins.intentShim.sendResult(args, callback);
-
-### Description
-
-The `intentShim.sendResult` function returns an `Activity.RESULT_OK` Intent to the activity that started this application, along with any extras that you want to send along (as `args.extras` object), and a `callback` function. It then calls Android Activity's finish() method, https://developer.android.com/reference/android/app/Activity.html#finish().
-
-### Android Quirks
-
-Both `args` and `callback` arguments have to be provided. If you do not need the functionality, send an empty object and an empty function
-
-    window.plugins.intentShim.sendResult({}, function() {});
-
-### Example
-
-    window.plugins.intentShim.sendResult(
-        {
-            extras: {
-                'Test Intent': 'Successfully sent',
-                'Test Intent int': 42,
-                'Test Intent bool': true,
-                'Test Intent double': parseFloat("142.12")
-            }
-        },
-        function() {
-        
-        }
-    );
 
 ## intentShim.packageExists
 Returns a boolean indicating if a specific package is installed on the device.
