@@ -38,9 +38,9 @@
         </config-file>
         <config-file parent="/*" target="AndroidManifest.xml">
             <queries>
-                <package android:name="com.google.android.contacts" />
                 <intent>
                     <action android:name="android.intent.action.INSERT" />
+                    <data android:mimeType="vnd.android.cursor.dir/contact" />
                 </intent>
             </queries>
         </config-file>
